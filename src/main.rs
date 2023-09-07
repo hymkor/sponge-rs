@@ -1,12 +1,15 @@
-fn mains(args: std::env::Args) -> std::io::Result<()> {
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+enum OurError {
+    #[error("filename is not specified")]
+    NoFileName,
+}
+
+fn mains(args: std::env::Args) -> Result<(),Box<dyn std::error::Error>> {
     let original = match args.skip(1).next() {
         Some(original) => original,
-        None => {
-            return Err(
-                std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    "file is not specified"))
-        }
+        None => { return Err(Box::new(OurError::NoFileName)) },
     };
     let tmp_name = format!("{}.sponge",&original);
     {
