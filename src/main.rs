@@ -8,17 +8,15 @@ fn mains(args: std::env::Args) -> std::io::Result<()> {
                     "file is not specified"))
         }
     };
-    let tmp_name = original.clone() + ".sponge";
+    let tmp_name = format!("{}.sponge",&original);
     {
-        let stdin = std::io::stdin();
-        let mut r = stdin.lock();
+        let mut r = std::io::stdin();
         let mut w = std::fs::File::create(&tmp_name)?;
         std::io::copy(&mut r,&mut w)?;
     }
-    let original_path = std::path::Path::new(&original);
-    if original_path.try_exists()? {
-        let bak_name = original.clone() + "~";
-        std::fs::rename(&original,bak_name)?;
+    if std::path::Path::new(&original).try_exists()? {
+        let backup = format!("{}~",&original);
+        std::fs::rename(&original,backup)?;
     }
     std::fs::rename(tmp_name,original)?;
     return Ok(())
