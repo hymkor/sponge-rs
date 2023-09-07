@@ -25,6 +25,11 @@ fn mains(args: std::env::Args) -> std::io::Result<()> {
             w.write_all(&buffer[0..n])?;
         }
     }
+    let original_path = std::path::Path::new(&original);
+    if original_path.try_exists()? {
+        let bak_name = original.clone() + "~";
+        std::fs::rename(&original,bak_name)?;
+    }
     std::fs::rename(tmp_name,original)?;
     return Ok(())
 }
