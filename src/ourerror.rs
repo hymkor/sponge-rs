@@ -12,3 +12,6 @@ impl std::fmt::Display for OurError {
 pub fn new(msg: &str) -> Box<dyn std::error::Error> {
     return Box::new(OurError(String::from(msg)));
 }
+
+#[allow(dead_code)]
+pub type Result<T> = core::result::Result<T, Box<dyn std::error::Error>>;

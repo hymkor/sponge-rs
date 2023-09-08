@@ -15,7 +15,7 @@ fn sponge(original: String) -> std::io::Result<()> {
     return Ok(());
 }
 
-fn mains() -> Result<(), Box<dyn std::error::Error>> {
+fn mains() -> ourerror::Result<()> {
     let mut args = std::env::args();
     if let None = args.next() {
         return Err(ourerror::new("filename is not specified"));
