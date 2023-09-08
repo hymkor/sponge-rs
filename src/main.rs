@@ -1,22 +1,4 @@
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-enum OurError {
-    #[error("filename is not specified")]
-    NoFileName,
-    #[error("too many filenames")]
-    TooManyFileNames,
-}
-
-fn mains(args: &mut std::env::Args) -> Result<(),Box<dyn std::error::Error>> {
-    let original = match args.skip(1).next() {
-        Some(original) => original,
-        None => { return Err(Box::new(OurError::NoFileName)) },
-    };
-    if let Some(_) = args.next() {
-        return Err(Box::new(OurError::TooManyFileNames))
-    }
-
+fn sponge(original: String) -> std::io::Result<()> {
     let tmp_name = format!("{}.sponge",&original);
     {
         let mut r = std::io::stdin();
@@ -31,9 +13,27 @@ fn mains(args: &mut std::env::Args) -> Result<(),Box<dyn std::error::Error>> {
     return Ok(())
 }
 
+fn mains() -> Option<String> {
+    let mut args = std::env::args();
+    if let None = args.next() {
+        return Some(String::from("filename is not specified"))
+    }
+    let original = match args.next() {
+        Some(original) => original,
+        None => { return Some(String::from("filename is not specified")) }
+    };
+    if let Some(_) = args.next() {
+        return Some(String::from("too many filenames"))
+    }
+    if let Err(err) = sponge(original) {
+        return Some(format!("{}",err))
+    }
+    return None
+}
+
 fn main(){
-    if let Err(err) = mains(&mut std::env::args()) {
-        eprintln!("{}",err);
+    if let Some(msg) = mains() {
+        eprintln!("{}",msg);
         std::process::exit(1);
     }
 }
