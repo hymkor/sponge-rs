@@ -1,3 +1,20 @@
+#[derive(Debug)]
+struct OurError {
+    msg: String,
+}
+
+impl std::error::Error for OurError {}
+
+impl std::fmt::Display for OurError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f,"{}",self.msg)
+    }
+}
+
+fn our_error(msg: &str) -> Box<dyn std::error::Error> {
+    return Box::new(OurError{ msg:String::from(msg) })
+}
+
 fn sponge(original: String) -> std::io::Result<()> {
     let tmp_name = format!("{}.sponge",&original);
     {
@@ -13,27 +30,25 @@ fn sponge(original: String) -> std::io::Result<()> {
     return Ok(())
 }
 
-fn mains() -> Option<String> {
+fn mains() -> Result<(),Box<dyn std::error::Error>> {
     let mut args = std::env::args();
     if let None = args.next() {
-        return Some(String::from("filename is not specified"))
+        return Err(our_error("filename is not specified") )
     }
     let original = match args.next() {
         Some(original) => original,
-        None => { return Some(String::from("filename is not specified")) }
+        None => return Err(our_error("filename is not specified") )
     };
     if let Some(_) = args.next() {
-        return Some(String::from("too many filenames"))
+        return Err(our_error("too many filenames") )
     }
-    if let Err(err) = sponge(original) {
-        return Some(format!("{}",err))
-    }
-    return None
+    sponge(original)?;
+    return Ok(())
 }
 
 fn main(){
-    if let Some(msg) = mains() {
-        eprintln!("{}",msg);
+    if let Err(err) = mains() {
+        eprintln!("{}",err);
         std::process::exit(1);
     }
 }
