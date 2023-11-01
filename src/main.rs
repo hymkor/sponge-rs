@@ -1,5 +1,3 @@
-mod ourerror;
-
 fn sponge(original: &str) -> std::io::Result<()> {
     let tmp_name = format!("{}.sponge", original);
     {
@@ -15,20 +13,14 @@ fn sponge(original: &str) -> std::io::Result<()> {
     return Ok(());
 }
 
-fn mains() -> ourerror::Result<()> {
-    let mut args = std::env::args();
-    if let None = args.next() {
-        return Err(ourerror::new("filename is not specified"));
-    }
+fn mains() -> Result<(), Box<dyn std::error::Error>> {
+    let mut args = std::env::args().skip(1);
     let original = match args.next() {
         Some(original) => original,
-        None => return Err(ourerror::new("filename is not specified")),
+        None => return Err(Box::from("filename is not specified")),
     };
-    if let Some(_) = args.next() {
-        return Err(ourerror::new("too many filenames"));
-    }
     sponge(&original)?;
-    return Ok(());
+    Ok(())
 }
 
 fn main() {
